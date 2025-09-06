@@ -777,6 +777,8 @@ html, body, #root { max-width: 100%; overflow-x: hidden; width: 100%; }
 
 /* Lottie loader container */
 .lottie-loader { width: 56px; height: 56px; display: inline-block; }
+/* Reduce size when used inside buttons */
+.lottie-inline-button .lottie-loader { width: 20px; height: 20px; }
 @media (max-width: 640px) { .lottie-loader { width: 44px; height: 44px; } }
 
 /* CLIENT PAGE STYLES */

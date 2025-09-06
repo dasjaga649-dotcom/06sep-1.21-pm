@@ -132,7 +132,7 @@ function App() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [dailyCount, setDailyCount] = useState<number>(0);
 
-  // Load stored chat history on mount
+  // Load stored chat history on mount (but keep landing on client page)
   useEffect(() => {
     try {
       const raw = localStorage.getItem('__chatHistory');
@@ -141,7 +141,7 @@ function App() {
         if (Array.isArray(arr) && arr.length) {
           const restored = arr.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }));
           setMessages(restored);
-          setCurrentPage('chat');
+          // Do not auto-switch to chat; user will navigate by asking a question
         }
       }
     } catch {}

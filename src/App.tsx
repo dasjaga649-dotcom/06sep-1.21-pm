@@ -604,7 +604,10 @@ function App() {
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      const elapsed = Date.now() - loadStart;
+      const minMs = 700; // ensure visible loader for user perception
+      const wait = Math.max(0, minMs - elapsed);
+      setTimeout(() => setIsLoading(false), wait);
       sendingRef.current = false;
     }
   };
@@ -1878,7 +1881,7 @@ const RelatedContentCarousel: React.FC<{ items: RelatedContent[] }> = ({ items }
                   }}
                 />
                 <div className="favicon-fallback" style={{ display: 'none' }}>
-                  �����
+                  ����
                 </div>
               </div>
               <div className="mini-card-content">

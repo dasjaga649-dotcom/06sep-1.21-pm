@@ -21,7 +21,8 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
         let data: any | null = null;
         try {
           // Prefer bundled JSON to avoid fetch/path issues
-          data = (await import('./animations/orange-skating.json')).default as any;
+          const mod: any = await import('./animations/orange-skating.json');
+          data = (mod && (mod.default || mod)) as any;
         } catch {
           try {
             // Fallback to public path

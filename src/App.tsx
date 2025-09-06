@@ -40,27 +40,8 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
   }, []);
 
   return (
-    <div className={className || 'chat-loader-inline'} role="status" aria-label="Thinking">
-      <span className="thinking-word" aria-hidden="true">
-        <span className="thinking-letter">T</span>
-        <span className="thinking-letter">h</span>
-        <span className="thinking-letter">i</span>
-        <span className="thinking-letter">n</span>
-        <span className="thinking-letter">k</span>
-        <span className="thinking-letter">i</span>
-        <span className="thinking-letter">n</span>
-        <span className="thinking-letter">g</span>
-      </span>
-      {hasLottie ? (
-        <div className="lottie-loader" ref={lottieRef} />
-      ) : (
-        <div className="loader-balls" aria-hidden="true">
-          <span className="loader-ball" />
-          <span className="loader-ball" />
-          <span className="loader-ball" />
-          <span className="loader-ball" />
-        </div>
-      )}
+    <div className={className || 'chat-loader-inline'} role="status" aria-label="Loading">
+      <div className="lottie-loader" ref={lottieRef} />
     </div>
   );
 };

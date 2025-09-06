@@ -18,11 +18,18 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
         const [{ default: lottie }] = await Promise.all([
           import('lottie-web')
         ]);
-        // Try to fetch optional animation JSON from public path
-        const res = await fetch('/orange-skating.json');
-        if (!res.ok) { setHasLottie(false); return; }
-        const data = await res.json();
-        if (!lottieRef.current) return;
+        let data: any | null = null;
+        try {
+          // Prefer bundled JSON to avoid fetch/path issues
+          data = (await import('./animations/orange-skating.json')).default as any;
+        } catch {
+          try {
+            // Fallback to public path
+            const res = await fetch('/orange-skating.json');
+            if (res.ok) data = await res.json();
+          } catch {}
+        }
+        if (!data || !lottieRef.current) { setHasLottie(false); return; }
         anim = lottie.loadAnimation({
           container: lottieRef.current,
           renderer: 'svg',

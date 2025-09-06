@@ -459,6 +459,7 @@ function App() {
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    const loadStart = Date.now();
     setIsLoading(true);
 
     let attemptNotes: string[] | undefined;
@@ -1877,7 +1878,7 @@ const RelatedContentCarousel: React.FC<{ items: RelatedContent[] }> = ({ items }
                   }}
                 />
                 <div className="favicon-fallback" style={{ display: 'none' }}>
-                  ����
+                  �����
                 </div>
               </div>
               <div className="mini-card-content">

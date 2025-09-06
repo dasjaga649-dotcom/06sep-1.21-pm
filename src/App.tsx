@@ -175,6 +175,19 @@ function App() {
     };
   }, [showMenu]);
 
+  // Debug: force show loader with ?debugLoader=1 for screenshots
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get('debugLoader') === '1') {
+        setCurrentPage('chat');
+        setIsLoading(true);
+        const t = setTimeout(() => setIsLoading(false), 1500);
+        return () => clearTimeout(t);
+      }
+    } catch {}
+  }, []);
+
   const todayKey = () => new Date().toISOString().slice(0,10);
   const loadDaily = useCallback(() => {
     try {

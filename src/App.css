@@ -777,6 +777,8 @@ html, body, #root { max-width: 100%; overflow-x: hidden; width: 100%; }
 
 /* Lottie loader container */
 .lottie-loader { width: 56px; height: 56px; display: inline-block; }
+/* Reduce size when used inside buttons */
+.lottie-inline-button .lottie-loader { width: 20px; height: 20px; }
 @media (max-width: 640px) { .lottie-loader { width: 44px; height: 44px; } }
 
 /* CLIENT PAGE STYLES */
@@ -824,12 +826,14 @@ html, body, #root { max-width: 100%; overflow-x: hidden; width: 100%; }
   overflow-x: auto;
   scroll-behavior: smooth;
   flex: 1;
+  width: 100%;
+  max-width: 100%;
   padding: 0.5rem 0;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   scrollbar-gutter: stable both-edges;
 }
-.answer-images-horizontal::-webkit-scrollbar { height: 4px; }
+.answer-images-horizontal::-webkit-scrollbar { height: 4px; width: 100%; }
 .answer-images-horizontal::-webkit-scrollbar-track { background: transparent; }
 .answer-images-horizontal::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; }
 .answer-images-horizontal:hover::-webkit-scrollbar-thumb { background: #cbd5e1; }

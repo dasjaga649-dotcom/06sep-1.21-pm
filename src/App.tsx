@@ -15,14 +15,15 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
     let anim: any;
     const load = async () => {
       try {
-        const [{ default: lottie }] = await Promise.all([
-          import('lottie-web')
-        ]);
-        // Try to fetch optional animation JSON from public path
-        const res = await fetch('/orange-skating.json');
-        if (!res.ok) { setHasLottie(false); return; }
-        const data = await res.json();
-        if (!lottieRef.current) return;
+        const mod = await import('lottie-web');
+        const lottie: any = (mod && ((mod as any).default || (mod as any).lottie || mod)) as any;
+        let data: any | null = null;
+        try {
+          // Load from public to avoid bundler JSON parsing issues
+          const res = await fetch('/orange-skating.json', { cache: 'no-store' });
+          if (res.ok) data = await res.json();
+        } catch {}
+        if (!data || !lottieRef.current) { setHasLottie(false); return; }
         anim = lottie.loadAnimation({
           container: lottieRef.current,
           renderer: 'svg',
@@ -40,27 +41,8 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
   }, []);
 
   return (
-    <div className={className || 'chat-loader-inline'} role="status" aria-label="Thinking">
-      <span className="thinking-word" aria-hidden="true">
-        <span className="thinking-letter">T</span>
-        <span className="thinking-letter">h</span>
-        <span className="thinking-letter">i</span>
-        <span className="thinking-letter">n</span>
-        <span className="thinking-letter">k</span>
-        <span className="thinking-letter">i</span>
-        <span className="thinking-letter">n</span>
-        <span className="thinking-letter">g</span>
-      </span>
-      {hasLottie ? (
-        <div className="lottie-loader" ref={lottieRef} />
-      ) : (
-        <div className="loader-balls" aria-hidden="true">
-          <span className="loader-ball" />
-          <span className="loader-ball" />
-          <span className="loader-ball" />
-          <span className="loader-ball" />
-        </div>
-      )}
+    <div className={className || 'chat-loader-inline'} role="status" aria-label="Loading">
+      <div className="lottie-loader" ref={lottieRef} />
     </div>
   );
 };
@@ -132,7 +114,7 @@ function App() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [dailyCount, setDailyCount] = useState<number>(0);
 
-  // Load stored chat history on mount
+  // Load stored chat history on mount (but keep landing on client page)
   useEffect(() => {
     try {
       const raw = localStorage.getItem('__chatHistory');
@@ -141,7 +123,7 @@ function App() {
         if (Array.isArray(arr) && arr.length) {
           const restored = arr.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }));
           setMessages(restored);
-          setCurrentPage('chat');
+          // Do not auto-switch to chat; user will navigate by asking a question
         }
       }
     } catch {}
@@ -185,6 +167,23 @@ function App() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showMenu]);
+
+  // Debug: force show loader with ?debugLoader=1 or ?debugLoader=keep (optional ?debugLoaderMs=2000)
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const dbg = sp.get('debugLoader');
+      if (dbg) {
+        setCurrentPage('chat');
+        setIsLoading(true);
+        if (dbg !== 'keep') {
+          const ms = Math.max(0, parseInt(sp.get('debugLoaderMs') || '1500', 10) || 1500);
+          const t = setTimeout(() => setIsLoading(false), ms);
+          return () => clearTimeout(t);
+        }
+      }
+    } catch {}
+  }, []);
 
   const todayKey = () => new Date().toISOString().slice(0,10);
   const loadDaily = useCallback(() => {
@@ -452,6 +451,7 @@ function App() {
         contactForm: true
       };
       setMessages(prev => [...prev, limitMsg]);
+      sendingRef.current = false;
       return;
     }
     const newCount = current.count + 1;
@@ -470,6 +470,7 @@ function App() {
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    const loadStart = Date.now();
     setIsLoading(true);
 
     let attemptNotes: string[] | undefined;
@@ -614,7 +615,10 @@ function App() {
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      const elapsed = Date.now() - loadStart;
+      const minMs = 1200; // ensure visible loader for user perception
+      const wait = Math.max(0, minMs - elapsed);
+      setTimeout(() => setIsLoading(false), wait);
       sendingRef.current = false;
     }
   };
@@ -688,11 +692,7 @@ function App() {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <div className="searching-animation" aria-label="Loading">
-                      <span className="dot"></span>
-                      <span className="dot"></span>
-                      <span className="dot"></span>
-                    </div>
+                    <LoadingAnimation className="lottie-inline-button" />
                   ) : (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -721,6 +721,13 @@ function App() {
               ))}
             </div>
           </div>
+          {isLoading && (
+            <div className="lottie-page-overlay">
+              <div className="lottie-holder">
+                <LoadingAnimation />
+              </div>
+            </div>
+          )}
         </main>
       </div>
     );
@@ -808,15 +815,10 @@ function App() {
               <button
                 type="submit"
                 className={`chat-send-button${isLoading ? ' searching' : ''}`}
-                disabled={isLoading || dailyCount >= 10}
-                title={dailyCount >= 10 ? 'Daily question limit reached' : undefined}
+                disabled={isLoading}
               >
                 {isLoading ? (
-                  <div className="searching-animation" aria-label="Loading">
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                  </div>
+                  <LoadingAnimation className="lottie-inline-button" />
                 ) : (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -843,6 +845,13 @@ function App() {
           </form>
         </div>
       </div>
+      {isLoading && (
+        <div className="lottie-page-overlay">
+          <div className="lottie-holder">
+            <LoadingAnimation />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

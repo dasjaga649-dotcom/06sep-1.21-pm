@@ -174,15 +174,19 @@ function App() {
     };
   }, [showMenu]);
 
-  // Debug: force show loader with ?debugLoader=1 for screenshots
+  // Debug: force show loader with ?debugLoader=1 or ?debugLoader=keep (optional ?debugLoaderMs=2000)
   useEffect(() => {
     try {
       const sp = new URLSearchParams(window.location.search);
-      if (sp.get('debugLoader') === '1') {
+      const dbg = sp.get('debugLoader');
+      if (dbg) {
         setCurrentPage('chat');
         setIsLoading(true);
-        const t = setTimeout(() => setIsLoading(false), 1500);
-        return () => clearTimeout(t);
+        if (dbg !== 'keep') {
+          const ms = Math.max(0, parseInt(sp.get('debugLoaderMs') || '1500', 10) || 1500);
+          const t = setTimeout(() => setIsLoading(false), ms);
+          return () => clearTimeout(t);
+        }
       }
     } catch {}
   }, []);

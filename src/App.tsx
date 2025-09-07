@@ -453,6 +453,7 @@ function App() {
         contactForm: true
       };
       setMessages(prev => [...prev, limitMsg]);
+      sendingRef.current = false;
       return;
     }
     const newCount = current.count + 1;

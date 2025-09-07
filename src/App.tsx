@@ -808,8 +808,7 @@ function App() {
               <button
                 type="submit"
                 className={`chat-send-button${isLoading ? ' searching' : ''}`}
-                disabled={isLoading || dailyCount >= 10}
-                title={dailyCount >= 10 ? 'Daily question limit reached' : undefined}
+                disabled={isLoading}
               >
                 {isLoading ? (
                   <LoadingAnimation className="lottie-inline-button" />

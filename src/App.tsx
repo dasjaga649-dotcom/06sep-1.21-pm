@@ -15,9 +15,8 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
     let anim: any;
     const load = async () => {
       try {
-        const [{ default: lottie }] = await Promise.all([
-          import('lottie-web')
-        ]);
+        const mod = await import('lottie-web');
+        const lottie: any = (mod && ((mod as any).default || (mod as any).lottie || mod)) as any;
         let data: any | null = null;
         try {
           // Prefer bundled JSON to avoid fetch/path issues

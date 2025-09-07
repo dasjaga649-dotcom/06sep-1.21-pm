@@ -845,6 +845,13 @@ function App() {
           </form>
         </div>
       </div>
+      {isLoading && (
+        <div className="lottie-page-overlay">
+          <div className="lottie-holder">
+            <LoadingAnimation />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

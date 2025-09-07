@@ -19,16 +19,10 @@ const LoadingAnimation: React.FC<{ className?: string }> = ({ className }) => {
         const lottie: any = (mod && ((mod as any).default || (mod as any).lottie || mod)) as any;
         let data: any | null = null;
         try {
-          // Prefer bundled JSON to avoid fetch/path issues
-          const mod: any = await import('./animations/orange-skating.json');
-          data = (mod && (mod.default || mod)) as any;
-        } catch {
-          try {
-            // Fallback to public path
-            const res = await fetch('/orange-skating.json');
-            if (res.ok) data = await res.json();
-          } catch {}
-        }
+          // Load from public to avoid bundler JSON parsing issues
+          const res = await fetch('/orange-skating.json', { cache: 'no-store' });
+          if (res.ok) data = await res.json();
+        } catch {}
         if (!data || !lottieRef.current) { setHasLottie(false); return; }
         anim = lottie.loadAnimation({
           container: lottieRef.current,

@@ -622,7 +622,7 @@ function App() {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       const elapsed = Date.now() - loadStart;
-      const minMs = 700; // ensure visible loader for user perception
+      const minMs = 1200; // ensure visible loader for user perception
       const wait = Math.max(0, minMs - elapsed);
       setTimeout(() => setIsLoading(false), wait);
       sendingRef.current = false;
